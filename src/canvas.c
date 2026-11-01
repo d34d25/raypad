@@ -23,6 +23,13 @@ void InitPanel(Panel *panel)
 
     panel->panelRec.height = GetScreenHeight() * 0.05f;
 
+    panel->saveRec.x = 0.0f;
+    
+    panel->saveRec.y = 0.0f;
+
+    panel->saveRec.width = 100.0f;
+    panel->saveRec.height = panel->panelRec.height;
+
     panel->maxColors = 8;
 
     panel->colors[0] = BLACK;
@@ -57,6 +64,16 @@ void UpdatePanel(Panel *panel, Canvas* canvas)
             break;
         }
     }
+
+    if(CheckCollisionPointRec(mousePos, panel->saveRec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+    {
+        Image exportImage = LoadImageFromTexture(canvas->renderTexture.texture);
+        ImageFlipVertical(&exportImage);
+        
+        ExportImage(exportImage, "testExport.png");
+
+        UnloadImage(exportImage);
+    }
 }
 
 void DrawPanel(Panel *panel)
@@ -67,6 +84,20 @@ void DrawPanel(Panel *panel)
     {
         DrawRectangleRec(GetColorRectangle(panel, i), panel->colors[i]);
     }
+
+    DrawRectangleRec(panel->saveRec, BLACK);
+
+    const char* saveText = "Save";
+
+    int saveTextLength = (int)TextLength(saveText);
+
+    DrawText(
+        saveText,
+        panel->saveRec.x + panel->saveRec.width * 0.15f,
+        panel->saveRec.y + panel->saveRec.height * 0.15f,
+        30,
+        RAYWHITE
+    );
 
     DrawRectangleLinesEx(panel->panelRec, 2.0f, BLACK);
 }

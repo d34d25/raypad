@@ -10,7 +10,7 @@ int main(void)
 
     InitPanel(&panel);
 
-    InitCanvas(1400, 1900, &canvas);
+    InitCanvas(1900, 1400, &canvas);
 
     while (!WindowShouldClose())
     {

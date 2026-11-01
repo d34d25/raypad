@@ -50,6 +50,8 @@ typedef struct Panel
 {
     Color colors[8];
 
+    Rectangle saveRec;
+
     Rectangle panelRec;
 
     Color panelColor;
