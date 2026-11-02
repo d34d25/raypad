@@ -1,92 +1,10 @@
 #ifndef CANVAS_H
 #define CANVAS_H
 
-#include "raylib.h"
+#include "panel.h"
 
 extern const int WINDOW_WIDTH;
 extern const int WINDOW_HEIGHT;
-
-extern const float outlineRecThickness;
-
-typedef enum Options
-{
-    NONE,
-
-    CIRC_BRUSH,
-    SQR_BRUSH,
-    
-    CIRC_FILL,
-    CIRC_LINES,
-
-    REC_FILL,
-    REC_LINES
-
-} Options;
-
-inline const char* GetOptionsText(Options option)
-{
-    switch (option)
-    {
-    case CIRC_BRUSH: return "CIRC_BRUSH";
-    case SQR_BRUSH: return "SQR_BRUSH";
-
-    case CIRC_FILL: return "CIRC_FILL";
-    case CIRC_LINES: return "CIRC_LINES";
-
-    case REC_FILL: return "REC_FILL";
-    case REC_LINES: return "REC_LINES";
-    
-    default: return "NULL";
-    }
-}
-
-typedef struct MenuButton
-{
-    Color color;
-
-    Rectangle button;
-
-    const char* text;
-
-    int fontSize;
-    
-    bool hovering;
-
-    bool clicked;
-
-} MenuButton;
-
-typedef struct DropDownMenu
-{
-    MenuButton optionsBtns[5];
-
-    Options options[5];
-
-    MenuButton menuButton;
-
-    float height;
-
-    int maxOptions; // 5
-
-    bool deployed;
-
-} DropDownMenu;
-
-typedef struct Panel
-{
-    DropDownMenu testMenu;
-
-    Color colors[8];
-
-    MenuButton saveBtn;
-
-    Rectangle panelRec;
-
-    Color panelColor;
-
-    int maxColors;
-
-} Panel;
 
 typedef struct Canvas
 {
@@ -129,65 +47,6 @@ typedef struct Canvas
     bool squareBrush;
 
 } Canvas;
-
-//UI
-
-void InitButton(
-    MenuButton* button,
-    int x, int y,
-    int width,
-    int height,
-    const char* text,
-    int fontSize,
-    Color color
-);
-
-void UpdateButton(MenuButton* button, Camera2D* camera);
-
-void DrawButton(MenuButton* button);
-
-//dropdown menu
-
-extern DropDownMenu dropdown;
-
-void InitiDropDownMenu(
-    DropDownMenu* dropdown,
-    const char* text,
-    float x,
-    float y,
-    float width,
-    float height,
-    float optionHeight,
-    Options options[5]
-);
-
-void UpdateDropDownMenu(DropDownMenu* dropdown);
-
-void DrawDropDownMenu(DropDownMenu* dropdown);
-
-//panel
-
-extern Panel panel;
-
-void InitPanel(Panel* panel);
-
-void UpdatePanel(Panel* panel, Canvas* canvas);
-
-void DrawPanel(Panel* panel);
-
-inline Rectangle GetColorRectangle(Panel* panel, int index)
-{
-    float recSize = panel->panelRec.height;
-
-    Rectangle rec;
-
-    rec.x = panel->panelRec.width - panel->maxColors * panel->panelRec.height + index * recSize;
-    rec.y = 0.0f;
-    rec.width = recSize;
-    rec.height = recSize;
-
-    return rec;
-}
 
 //canvas
 
@@ -239,6 +98,5 @@ inline void DrawFinderLine(Canvas* canvas)
 
     DrawLineEx(canvas->mousePosition, (Vector2){canvas->canvasWidth * 0.5f, canvas->canvasHeight * 0.5f}, lineThickness, RED);
 }
-
 
 #endif

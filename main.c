@@ -14,7 +14,7 @@ int main(void)
 
     while (!WindowShouldClose())
     {
-        UpdatePanel(&panel, &canvas);
+        UpdatePanel(&panel, &canvas.backgroundColor, canvas.renderTexture.texture);
 
         UpdateCanvas(&canvas, &panel);
 
