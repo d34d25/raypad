@@ -10,24 +10,22 @@ void InitiDropDownMenu(
     float width,
     float height,
     float optionHeight,
-    Options options[5]
+    Options options[MAX_OPTIONS]
 )
 {
     dropdown->menuButton.text = text;
 
     dropdown->deployed = false;
 
-    dropdown->maxOptions = 5;
-
-    dropdown->height = dropdown->maxOptions * optionHeight;
+    dropdown->height = MAX_OPTIONS * optionHeight;
 
     InitButton(
         &dropdown->menuButton,
         x, y, width, height,
-        "Brush type", 20, DARKBLUE
+        text, 20, DARKBLUE
     );
 
-    for(int i = 1; i < dropdown->maxOptions + 1; i++)
+    for(int i = 1; i < MAX_OPTIONS + 1; i++)
     {
         dropdown->options[i - 1] = options[i - 1];
 
@@ -54,7 +52,7 @@ void UpdateDropDownMenu(DropDownMenu *dropdown)
 
     if(dropdown->deployed)
     {
-        for(int i = 0; i < dropdown->maxOptions; i++)
+        for(int i = 0; i < MAX_OPTIONS; i++)
         {
             MenuButton* optionBtn = &dropdown->optionsBtns[i];
 
@@ -75,7 +73,7 @@ void DrawDropDownMenu(DropDownMenu *dropdown)
 {
     if(dropdown->deployed)
     {
-        for(int i = 0; i < dropdown->maxOptions; i++)
+        for(int i = 0; i < MAX_OPTIONS; i++)
         {
             MenuButton* optionBtn = &dropdown->optionsBtns[i];
 

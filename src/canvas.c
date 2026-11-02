@@ -7,8 +7,6 @@
 const int WINDOW_WIDTH = 1600;
 const int WINDOW_HEIGHT = 900;
 
-Canvas canvas;
-
 void InitCanvas(int width, int height, Canvas *canvas)
 {
     canvas->canvasWidth = width;
@@ -78,27 +76,34 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
         return;
     }
 
-    if(panel->testMenu.deployed)
+    for(int i = 0; i < MAX_DROP_DOWN_MENUS; i++)
     {
-        for(int i = 0; i < panel->testMenu.maxOptions; i++)
+        DropDownMenu* currentMenu = &panel->dropdownMenus[i];
+
+        if(!currentMenu) continue;
+
+        if(currentMenu->deployed)
         {
-            MenuButton* optionBtn = &panel->testMenu.optionsBtns[i];
-
-            if(optionBtn->text == "NULL") continue;
-
-            if(optionBtn->clicked)
+            for(int i = 0; i < MAX_OPTIONS; i++)
             {
-                if(optionBtn->text == "CIRC_BRUSH") canvas->squareBrush = false;
+                MenuButton* currentBtn = &currentMenu->optionsBtns[i];
 
-                if(optionBtn->text == "SQR_BRUSH") canvas->squareBrush = true;
-            }
+                if(currentBtn->text == "NULL") continue;
 
-            if(optionBtn->hovering)
-            {
-                canvas->dragging = false;
-                canvas->drawing = false;
+                if(currentBtn->clicked)
+                {
+                    if(currentBtn->text == "CIRC_BRUSH") canvas->squareBrush = false;
 
-                return;
+                    if(currentBtn->text == "SQR_BRUSH") canvas->squareBrush = true;
+                }
+
+                if(currentBtn->hovering)
+                {
+                    canvas->dragging = false;
+                    canvas->drawing = false;
+
+                    return;
+                }
             }
         }
     }

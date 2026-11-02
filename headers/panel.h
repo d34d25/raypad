@@ -5,11 +5,15 @@
 
 extern const float outlineRecThickness;
 
+#define MAX_COLORS 8
+
+#define MAX_DROP_DOWN_MENUS 2
+
 typedef struct Panel
 {
-    DropDownMenu testMenu;
+    DropDownMenu dropdownMenus[MAX_DROP_DOWN_MENUS];
 
-    Color colors[8];
+    Color colors[MAX_COLORS];
 
     MenuButton saveBtn;
 
@@ -17,11 +21,7 @@ typedef struct Panel
 
     Color panelColor;
 
-    int maxColors;
-
 } Panel;
-
-extern Panel panel;
 
 void InitPanel(Panel* panel);
 
@@ -35,7 +35,7 @@ inline Rectangle GetColorRectangle(Panel* panel, int index)
 
     Rectangle rec;
 
-    rec.x = panel->panelRec.width - panel->maxColors * panel->panelRec.height + index * recSize;
+    rec.x = panel->panelRec.width - MAX_COLORS * panel->panelRec.height + index * recSize;
     rec.y = 0.0f;
     rec.width = recSize;
     rec.height = recSize;

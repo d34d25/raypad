@@ -2,8 +2,6 @@
 
 #include <stdio.h>
 
-Panel panel;
-
 const float outlineRecThickness = 2.0f;
 
 void InitPanel(Panel *panel)
@@ -24,8 +22,6 @@ void InitPanel(Panel *panel)
         BLACK
     );
 
-    panel->maxColors = 8;
-
     panel->colors[0] = BLACK;
     panel->colors[1] = RAYWHITE;
     panel->colors[2] = RED;
@@ -37,26 +33,53 @@ void InitPanel(Panel *panel)
 
     //drop down menus
 
-    Options testMenuOptions[panel->testMenu.maxOptions];
-
-    for(int i = 0; i < panel->testMenu.maxOptions; i++)
+    for(int i = 0; i < MAX_DROP_DOWN_MENUS; i++)
     {
-        testMenuOptions[i] = NONE;
+        const char* text = "";
+
+        Options currentMenuOptions[MAX_OPTIONS];
+
+        for(int o = 0; o < MAX_OPTIONS; o++)
+        {
+            currentMenuOptions[i] = NONE;
+        }
+
+        if(i == 0) //brush type
+        {
+            currentMenuOptions[0] = CIRC_BRUSH;
+            currentMenuOptions[1] = SQR_BRUSH;
+
+            text = "Brush type";
+        }
+
+        if(i == 1) //fill shape
+        {
+            currentMenuOptions[0] = CIRC_FILL;
+            currentMenuOptions[1] = CIRC_LINES;
+
+            currentMenuOptions[2] = REC_FILL;
+            currentMenuOptions[3] = REC_LINES;
+
+            text = "Fill shape";
+        }
+
+        float btnWidth = 150.0f;
+
+        float currentX = 100.0f;
+
+        if(i > 0) currentX += btnWidth;
+
+        InitiDropDownMenu(
+            &panel->dropdownMenus[i],
+            text,
+            currentX,
+            0.0f,
+            btnWidth,
+            panel->panelRec.height,
+            panel->panelRec.height,
+            currentMenuOptions
+        );
     }
-
-    testMenuOptions[0] = CIRC_BRUSH;
-    testMenuOptions[1] = SQR_BRUSH;
-
-    InitiDropDownMenu(
-        &panel->testMenu,
-        "Brush type",
-        100.0f,
-        0.0f,
-        150.0f,
-        panel->panelRec.height,
-        panel->panelRec.height,
-        testMenuOptions
-    );
 }
 
 void UpdatePanel(Panel *panel, Color* brushColor, Texture2D texture)
@@ -65,7 +88,7 @@ void UpdatePanel(Panel *panel, Color* brushColor, Texture2D texture)
 
     Vector2 mousePos = GetMousePosition();
 
-    for(int i = 0; i < panel->maxColors; i++)
+    for(int i = 0; i < MAX_COLORS; i++)
     {
         Rectangle colorRec = GetColorRectangle(panel, i);
 
@@ -87,21 +110,27 @@ void UpdatePanel(Panel *panel, Color* brushColor, Texture2D texture)
         UnloadImage(exportImage);
     }
 
-    UpdateDropDownMenu(&panel->testMenu);
+    for(int i = 0; i < MAX_DROP_DOWN_MENUS; i++)
+    {
+        UpdateDropDownMenu(&panel->dropdownMenus[i]);
+    }
 }
 
 void DrawPanel(Panel *panel)
 {
     DrawRectangleRec(panel->panelRec, DARKGRAY);
 
-    for(int i = 0; i < panel->maxColors; i++)
+    for(int i = 0; i < MAX_COLORS; i++)
     {
         DrawRectangleRec(GetColorRectangle(panel, i), panel->colors[i]);
     }
 
     DrawButton(&panel->saveBtn);
 
-    DrawDropDownMenu(&panel->testMenu);
+    for(int i = 0; i < MAX_DROP_DOWN_MENUS; i++)
+    {
+        DrawDropDownMenu(&panel->dropdownMenus[i]);
+    }
 
     DrawRectangleLinesEx(panel->panelRec, outlineRecThickness, BLACK);
 }

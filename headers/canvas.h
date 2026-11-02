@@ -48,10 +48,6 @@ typedef struct Canvas
 
 } Canvas;
 
-//canvas
-
-extern Canvas canvas;
-
 void InitCanvas(int width, int height, Canvas* canvas);
 
 void UpdateCanvas(Canvas* canvas, Panel* panel);

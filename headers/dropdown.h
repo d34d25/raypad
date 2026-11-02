@@ -3,6 +3,8 @@
 
 #include "button.h"
 
+#define MAX_OPTIONS 5
+
 typedef enum Options
 {
     NONE,
@@ -37,15 +39,13 @@ inline const char* GetOptionsText(Options option)
 
 typedef struct DropDownMenu
 {
-    MenuButton optionsBtns[5];
+    MenuButton optionsBtns[MAX_OPTIONS];
 
-    Options options[5];
+    Options options[MAX_OPTIONS];
 
     MenuButton menuButton;
 
     float height;
-
-    int maxOptions; // 5
 
     bool deployed;
 
