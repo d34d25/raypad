@@ -6,6 +6,88 @@
 extern const int WINDOW_WIDTH;
 extern const int WINDOW_HEIGHT;
 
+extern const float outlineRecThickness;
+
+typedef enum Options
+{
+    NONE,
+
+    CIRC_BRUSH,
+    SQR_BRUSH,
+    
+    CIRC_FILL,
+    CIRC_LINES,
+
+    REC_FILL,
+    REC_LINES
+
+} Options;
+
+inline const char* GetOptionsText(Options option)
+{
+    switch (option)
+    {
+    case CIRC_BRUSH: return "CIRC_BRUSH";
+    case SQR_BRUSH: return "SQR_BRUSH";
+
+    case CIRC_FILL: return "CIRC_FILL";
+    case CIRC_LINES: return "CIRC_LINES";
+
+    case REC_FILL: return "REC_FILL";
+    case REC_LINES: return "REC_LINES";
+    
+    default: return "NULL";
+    }
+}
+
+typedef struct MenuButton
+{
+    Color color;
+
+    Rectangle button;
+
+    const char* text;
+
+    int fontSize;
+    
+    bool hovering;
+
+    bool clicked;
+
+} MenuButton;
+
+typedef struct DropDownMenu
+{
+    MenuButton optionsBtns[5];
+
+    Options options[5];
+
+    MenuButton menuButton;
+
+    float height;
+
+    int maxOptions; // 5
+
+    bool deployed;
+
+} DropDownMenu;
+
+typedef struct Panel
+{
+    DropDownMenu testMenu;
+
+    Color colors[8];
+
+    MenuButton saveBtn;
+
+    Rectangle panelRec;
+
+    Color panelColor;
+
+    int maxColors;
+
+} Panel;
+
 typedef struct Canvas
 {
     RenderTexture2D renderTexture;
@@ -24,7 +106,7 @@ typedef struct Canvas
 
     Vector2 mousePosition;
 
-    Vector2 previousMousePosition;
+    Vector2 previousMousePosition; 
 
     float brushSize;
 
@@ -44,24 +126,46 @@ typedef struct Canvas
 
     bool showGrid;
 
+    bool squareBrush;
+
 } Canvas;
 
-typedef struct Panel
-{
-    Color colors[8];
-
-    Rectangle saveRec;
-
-    Rectangle panelRec;
-
-    Color panelColor;
-
-    int maxColors;
-
-} Panel;
-
-
 //UI
+
+void InitButton(
+    MenuButton* button,
+    int x, int y,
+    int width,
+    int height,
+    const char* text,
+    int fontSize,
+    Color color
+);
+
+void UpdateButton(MenuButton* button, Camera2D* camera);
+
+void DrawButton(MenuButton* button);
+
+//dropdown menu
+
+extern DropDownMenu dropdown;
+
+void InitiDropDownMenu(
+    DropDownMenu* dropdown,
+    const char* text,
+    float x,
+    float y,
+    float width,
+    float height,
+    float optionHeight,
+    Options options[5]
+);
+
+void UpdateDropDownMenu(DropDownMenu* dropdown);
+
+void DrawDropDownMenu(DropDownMenu* dropdown);
+
+//panel
 
 extern Panel panel;
 

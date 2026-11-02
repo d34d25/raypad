@@ -7,11 +7,152 @@
 const int WINDOW_WIDTH = 1600;
 const int WINDOW_HEIGHT = 900;
 
+const float outlineRecThickness = 2.0f;
+
 Canvas canvas;
 
 Panel panel;
 
 //panel
+
+void InitButton(
+    MenuButton *button,
+    int x, int y,
+    int width,
+    int height,
+    const char *text,
+    int fontSize,
+    Color color
+)
+{
+    button->clicked = false;
+    button->hovering = false;
+
+    button->button.x = x;
+    button->button.y = y;
+
+    button->button.width = width;
+    button->button.height = height;
+
+    button->text = text;
+    button->fontSize = fontSize;
+
+    button->color = color;
+}
+
+void UpdateButton(MenuButton *button, Camera2D* camera)
+{
+    Vector2 mousePos = GetMousePosition();
+
+    if(camera) mousePos = GetScreenToWorld2D(mousePos, *camera);
+    
+    button->hovering = CheckCollisionPointRec(mousePos, button->button);
+
+    button->clicked = button->hovering && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+}
+
+void DrawButton(MenuButton *button)
+{
+    DrawRectangleRec(button->button, button->color);
+
+    DrawText(
+        button->text,
+        button->button.x + button->button.width * 0.15f,
+        button->button.y + button->button.height * 0.15f,
+        button->fontSize,
+        RAYWHITE
+    );
+
+    DrawRectangleLinesEx(button->button, 2.0f, BLACK);
+}
+
+void InitiDropDownMenu(
+    DropDownMenu *dropdown,
+    const char *text,
+    float x,
+    float y,
+    float width,
+    float height,
+    float optionHeight,
+    Options options[5]
+)
+{
+    dropdown->menuButton.text = text;
+
+    dropdown->deployed = false;
+
+    dropdown->maxOptions = 5;
+
+    dropdown->height = dropdown->maxOptions * optionHeight;
+
+    InitButton(
+        &dropdown->menuButton,
+        x, y, width, height,
+        "Brush type", 20, DARKBLUE
+    );
+
+    for(int i = 1; i < dropdown->maxOptions + 1; i++)
+    {
+        dropdown->options[i - 1] = options[i - 1];
+
+        MenuButton* optionBtn = &dropdown->optionsBtns[i - 1];
+
+        InitButton(
+            optionBtn,
+            x, i * optionHeight,
+            width, optionHeight,
+            GetOptionsText(dropdown->options[i - 1]), //maps option to text
+            20,
+            DARKGRAY
+        );
+    }
+}
+
+void UpdateDropDownMenu(DropDownMenu *dropdown)
+{
+    Vector2 mousePos = GetMousePosition();
+
+    UpdateButton(&dropdown->menuButton, NULL);
+
+    if(dropdown->menuButton.clicked) dropdown->deployed = !dropdown->deployed;
+
+    if(dropdown->deployed)
+    {
+        for(int i = 0; i < dropdown->maxOptions; i++)
+        {
+            MenuButton* optionBtn = &dropdown->optionsBtns[i];
+
+            UpdateButton(optionBtn, NULL);
+
+            if(optionBtn->text == "NULL") continue;
+
+            if(optionBtn->clicked)
+            {
+                
+            }
+        }
+    }
+    
+}
+
+void DrawDropDownMenu(DropDownMenu *dropdown)
+{
+    if(dropdown->deployed)
+    {
+        for(int i = 0; i < dropdown->maxOptions; i++)
+        {
+            MenuButton* optionBtn = &dropdown->optionsBtns[i];
+
+            UpdateButton(optionBtn, NULL);
+
+            if(optionBtn->text == "NULL") continue;
+
+            DrawButton(optionBtn);
+        }
+    }
+
+    DrawButton(&dropdown->menuButton);
+}
 
 void InitPanel(Panel *panel)
 {
@@ -23,12 +164,13 @@ void InitPanel(Panel *panel)
 
     panel->panelRec.height = GetScreenHeight() * 0.05f;
 
-    panel->saveRec.x = 0.0f;
-    
-    panel->saveRec.y = 0.0f;
-
-    panel->saveRec.width = 100.0f;
-    panel->saveRec.height = panel->panelRec.height;
+    InitButton(
+        &panel->saveBtn,
+        0.0f, 0.0f,
+        100.0f, panel->panelRec.height,
+        "Save", 20,
+        BLACK
+    );
 
     panel->maxColors = 8;
 
@@ -40,10 +182,35 @@ void InitPanel(Panel *panel)
     panel->colors[5] = YELLOW;
     panel->colors[6] = MAGENTA;
     panel->colors[7] = SKYBLUE;
+
+    //drop down menus
+
+    Options testMenuOptions[panel->testMenu.maxOptions];
+
+    for(int i = 0; i < panel->testMenu.maxOptions; i++)
+    {
+        testMenuOptions[i] = NONE;
+    }
+
+    testMenuOptions[0] = CIRC_BRUSH;
+    testMenuOptions[1] = SQR_BRUSH;
+
+    InitiDropDownMenu(
+        &panel->testMenu,
+        "Brush type",
+        100.0f,
+        0.0f,
+        150.0f,
+        panel->panelRec.height,
+        panel->panelRec.height,
+        testMenuOptions
+    );
 }
 
 void UpdatePanel(Panel *panel, Canvas* canvas)
 {
+    UpdateButton(&panel->saveBtn, NULL);
+
     Vector2 mousePos = GetMousePosition();
 
     for(int i = 0; i < panel->maxColors; i++)
@@ -52,20 +219,13 @@ void UpdatePanel(Panel *panel, Canvas* canvas)
 
         if(CheckCollisionPointRec(mousePos, colorRec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
-            printf("color changed \n");
-
-            printf("color: \n");
-            printf("%i", (int)panel->colors[i].r);
-            printf("%i", (int)panel->colors[i].g);
-            printf("%i\n", (int)panel->colors[i].b);
-
             canvas->currentBrushColor = panel->colors[i];
 
             break;
         }
     }
 
-    if(CheckCollisionPointRec(mousePos, panel->saveRec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+    if(panel->saveBtn.clicked)
     {
         Image exportImage = LoadImageFromTexture(canvas->renderTexture.texture);
         ImageFlipVertical(&exportImage);
@@ -74,6 +234,8 @@ void UpdatePanel(Panel *panel, Canvas* canvas)
 
         UnloadImage(exportImage);
     }
+
+    UpdateDropDownMenu(&panel->testMenu);
 }
 
 void DrawPanel(Panel *panel)
@@ -85,21 +247,11 @@ void DrawPanel(Panel *panel)
         DrawRectangleRec(GetColorRectangle(panel, i), panel->colors[i]);
     }
 
-    DrawRectangleRec(panel->saveRec, BLACK);
+    DrawButton(&panel->saveBtn);
 
-    const char* saveText = "Save";
+    DrawDropDownMenu(&panel->testMenu);
 
-    int saveTextLength = (int)TextLength(saveText);
-
-    DrawText(
-        saveText,
-        panel->saveRec.x + panel->saveRec.width * 0.15f,
-        panel->saveRec.y + panel->saveRec.height * 0.15f,
-        30,
-        RAYWHITE
-    );
-
-    DrawRectangleLinesEx(panel->panelRec, 2.0f, BLACK);
+    DrawRectangleLinesEx(panel->panelRec, outlineRecThickness, BLACK);
 }
 
 //canvas
@@ -136,6 +288,8 @@ void InitCanvas(int width, int height, Canvas *canvas)
 
     canvas->showGrid = false;
 
+    canvas->squareBrush = false;
+
     canvas->backgroundColor = RAYWHITE;
 
     canvas->brushColor = BLACK;
@@ -161,12 +315,39 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
 
     canvas->mousePosition = GetScreenToWorld2D(canvas->mousePosition, canvas->camera);
 
-    if(CheckCollisionPointRec(GetWorldToScreen2D(canvas->mousePosition, canvas->camera), panel->panelRec))
+    Vector2 screenMousePos = GetWorldToScreen2D(canvas->mousePosition, canvas->camera); 
+
+    if(CheckCollisionPointRec(screenMousePos, panel->panelRec))
     {
         canvas->dragging = false;
         canvas->drawing = false;
-        
+    
         return;
+    }
+
+    if(panel->testMenu.deployed)
+    {
+        for(int i = 0; i < panel->testMenu.maxOptions; i++)
+        {
+            MenuButton* optionBtn = &panel->testMenu.optionsBtns[i];
+
+            if(optionBtn->text == "NULL") continue;
+
+            if(optionBtn->clicked)
+            {
+                if(optionBtn->text == "CIRC_BRUSH") canvas->squareBrush = false;
+
+                if(optionBtn->text == "SQR_BRUSH") canvas->squareBrush = true;
+            }
+
+            if(optionBtn->hovering)
+            {
+                canvas->dragging = false;
+                canvas->drawing = false;
+
+                return;
+            }
+        }
     }
 
     float mouseWheel = GetMouseWheelMove();
@@ -245,8 +426,25 @@ void DrawCanvas(Canvas* canvas)
 
         if(canvas->showGrid) DrawGrid2D(canvas);
 
-        if(canvas->erasing) DrawCircleLinesV(canvas->mousePosition, canvas->eraserSize * 0.5f, BLACK);
-        else DrawCircleV(canvas->mousePosition, canvas->brushSize * 0.5f, canvas->brushColor);
+        if(!canvas->squareBrush)
+        {
+            if(canvas->erasing) DrawCircleLinesV(canvas->mousePosition, canvas->eraserSize * 0.5f, BLACK);
+            else DrawCircleV(canvas->mousePosition, canvas->brushSize * 0.5f, canvas->brushColor);
+        }
+        else
+        {
+            if(canvas->erasing) DrawRectangleLines(
+                canvas->mousePosition.x - canvas->eraserSize * 0.5f,
+                canvas->mousePosition.y - canvas->eraserSize * 0.5f,
+                canvas->eraserSize, canvas->eraserSize, BLACK
+            );
+
+            else DrawRectangle(
+                canvas->mousePosition.x - canvas->brushSize * 0.5f,
+                canvas->mousePosition.y - canvas->brushSize * 0.5f,
+                canvas->brushSize, canvas->brushSize, BLACK
+            );
+        }
 
     EndTextureMode();
 
@@ -260,7 +458,19 @@ void DrawCanvas(Canvas* canvas)
             else size = canvas->brushSize;
 
             DrawLineEx(canvas->previousMousePosition, canvas->mousePosition, size, canvas->brushColor);
-            DrawCircleV(canvas->mousePosition, size * 0.5f, canvas->brushColor);
+
+            if(!canvas->squareBrush)
+            {
+                DrawCircleV(canvas->mousePosition, size * 0.5f, canvas->brushColor);
+            }
+            else
+            {
+                DrawRectangle(
+                    canvas->mousePosition.x - size * 0.5f,
+                    canvas->mousePosition.y - size * 0.5f,
+                    canvas->brushSize, size, BLACK
+                );
+            }
         }
     
     EndTextureMode();
