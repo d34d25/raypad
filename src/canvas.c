@@ -442,7 +442,7 @@ void DrawCanvas(Canvas* canvas)
             else DrawRectangle(
                 canvas->mousePosition.x - canvas->brushSize * 0.5f,
                 canvas->mousePosition.y - canvas->brushSize * 0.5f,
-                canvas->brushSize, canvas->brushSize, BLACK
+                canvas->brushSize, canvas->brushSize, canvas->brushColor
             );
         }
 
@@ -468,7 +468,7 @@ void DrawCanvas(Canvas* canvas)
                 DrawRectangle(
                     canvas->mousePosition.x - size * 0.5f,
                     canvas->mousePosition.y - size * 0.5f,
-                    canvas->brushSize, size, BLACK
+                    canvas->brushSize, size, canvas->brushColor
                 );
             }
         }
