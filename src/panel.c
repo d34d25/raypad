@@ -94,7 +94,7 @@ void UpdatePanel(Panel *panel, Color* brushColor, Texture2D texture)
 
         if(CheckCollisionPointRec(mousePos, colorRec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
-            brushColor = &panel->colors[i];
+            *brushColor = panel->colors[i];
 
             break;
         }

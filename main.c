@@ -20,7 +20,7 @@ int main(void)
 
     while (!WindowShouldClose())
     {
-        UpdatePanel(panel, &canvas->backgroundColor, canvas->renderTexture.texture);
+        UpdatePanel(panel, &canvas->currentBrushColor, canvas->renderTexture.texture);
 
         UpdateCanvas(canvas, panel);
 
