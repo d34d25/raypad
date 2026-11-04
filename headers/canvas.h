@@ -14,6 +14,8 @@ typedef struct Canvas
 
     Camera2D camera;
 
+    Rectangle tempFillRec;
+
     Rectangle sourceRec;
 
     Color backgroundColor;
@@ -24,6 +26,8 @@ typedef struct Canvas
 
     Vector2 mousePosition;
 
+    Vector2 initialMousePosition;
+
     Vector2 previousMousePosition; 
 
     float brushSize;
@@ -33,6 +37,10 @@ typedef struct Canvas
     int canvasWidth;
 
     int canvasHeight;
+
+    bool fillRecStart;
+
+    bool mouseInPanel;
 
     bool drawing;
 

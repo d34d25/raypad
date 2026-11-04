@@ -17,6 +17,8 @@ void InitCanvas(int width, int height, Canvas *canvas)
 
     canvas->previousMousePosition = canvas->mousePosition;
 
+    canvas->initialMousePosition = (Vector2){0.0f,0.0f};
+
     canvas->camera.rotation = 0.0f;
 
     canvas->camera.zoom = 1.0f;
@@ -30,6 +32,10 @@ void InitCanvas(int width, int height, Canvas *canvas)
 
     canvas->sourceRec.width = width;
     canvas->sourceRec.height = -height;
+
+    canvas->mouseInPanel = false;
+
+    canvas->fillRecStart = false;
 
     canvas->drawing = false;
 
@@ -56,6 +62,12 @@ void InitCanvas(int width, int height, Canvas *canvas)
     canvas->overlay = LoadRenderTexture(width, height);
 
     ClearCanvas(canvas);
+
+    canvas->tempFillRec.x = -100;
+    canvas->tempFillRec.y = -100;
+
+    canvas->tempFillRec.width = 10;
+    canvas->tempFillRec.height = 10;
 }
 
 void UpdateCanvas(Canvas* canvas, Panel* panel)
@@ -68,7 +80,9 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
 
     Vector2 screenMousePos = GetWorldToScreen2D(canvas->mousePosition, canvas->camera); 
 
-    if(CheckCollisionPointRec(screenMousePos, panel->panelRec))
+    canvas->mouseInPanel = CheckCollisionPointRec(screenMousePos, panel->panelRec);
+
+    if(canvas->mouseInPanel)
     {
         canvas->dragging = false;
         canvas->drawing = false;
@@ -95,6 +109,8 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
                     if(currentBtn->text == "CIRC_BRUSH") canvas->squareBrush = false;
 
                     if(currentBtn->text == "SQR_BRUSH") canvas->squareBrush = true;
+
+                    if(currentBtn->text == "REC_FILL") canvas->fillRecStart = !canvas->fillRecStart;
                 }
 
                 if(currentBtn->hovering)
@@ -110,35 +126,25 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
 
     float mouseWheel = GetMouseWheelMove();
 
-    int modKey = KEY_LEFT_CONTROL;
+    bool modKeyDown = IsKeyDown(KEY_LEFT_CONTROL);
 
-    int clearKey = KEY_C;
-    int eraserKey = KEY_E;
+    bool inceasingBrushSize = IsKeyDown(KEY_KP_ADD);
+    bool decreasingBrushSize = IsKeyDown(KEY_KP_SUBTRACT);
 
-    int brushSizeUpKey = KEY_KP_ADD;
-    int brushSizeDownKey = KEY_KP_SUBTRACT;
+    canvas->drawing = IsMouseButtonDown(MOUSE_BUTTON_LEFT) && !modKeyDown && !canvas->fillRecStart;
 
-    int drawButton = MOUSE_BUTTON_LEFT;
+    if(IsKeyPressed(KEY_E)) canvas->erasing = !canvas->erasing;
 
-    int showGridKey = KEY_G;
+    if(IsKeyPressed(KEY_G)) canvas->showGrid = !canvas->showGrid;
 
-    bool modKeyDown = IsKeyDown(modKey);
-
-    bool inceasingBrushSize = IsKeyDown(brushSizeUpKey);
-    bool decreasingBrushSize = IsKeyDown(brushSizeDownKey);
-
-    canvas->drawing = IsMouseButtonDown(drawButton) && !modKeyDown;
-
-    if(IsKeyPressed(eraserKey)) canvas->erasing = !canvas->erasing;
-
-    if(IsKeyPressed(showGridKey)) canvas->showGrid = !canvas->showGrid;
-
-    if(modKeyDown && IsKeyPressed(clearKey)) canvas->clearingBg = true;
+    if(modKeyDown && IsKeyPressed(KEY_C)) canvas->clearingBg = true;
 
     canvas->dragging = IsMouseButtonDown(MOUSE_BUTTON_MIDDLE);
 
     if(canvas->erasing) canvas->brushColor = canvas->backgroundColor;
     else canvas->brushColor = canvas->currentBrushColor;
+
+    //camera drag
 
     if(canvas->dragging)
     {
@@ -147,6 +153,8 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
         canvas->camera.offset.x += mouseDelta.x;
         canvas->camera.offset.y += mouseDelta.y;
     }
+
+    //camera zoom
 
     if(mouseWheel != 0)
     {
@@ -157,6 +165,8 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
 
         canvas->camera.zoom = Clamp(canvas->camera.zoom, cameraStep, 100.0f);
     }
+
+    //brush size
 
     float brushStep = 1.0f;
 
@@ -174,6 +184,24 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
     canvas->brushSize = Clamp(canvas->brushSize, 1.0f, 100.0f);
 
     canvas->eraserSize = Clamp(canvas->eraserSize, 1.0f, 100.0f);
+
+    //fill rec
+
+    if(canvas->fillRecStart)
+    {
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            canvas->initialMousePosition = canvas->mousePosition;
+        }
+
+        Vector2 tempRecSize = Vector2Subtract(canvas->mousePosition, canvas->initialMousePosition);
+
+        canvas->tempFillRec.x = fminf(canvas->initialMousePosition.x, canvas->mousePosition.x);
+        canvas->tempFillRec.y = fminf(canvas->initialMousePosition.y, canvas->mousePosition.y);
+
+        canvas->tempFillRec.width = fabsf(tempRecSize.x);
+        canvas->tempFillRec.height = fabsf(tempRecSize.y);
+    }
 }
 
 void DrawCanvas(Canvas* canvas)
@@ -184,24 +212,31 @@ void DrawCanvas(Canvas* canvas)
 
         if(canvas->showGrid) DrawGrid2D(canvas);
 
-        if(!canvas->squareBrush)
+        if(canvas->fillRecStart && IsMouseButtonDown(MOUSE_BUTTON_LEFT) && !canvas->mouseInPanel)
         {
-            if(canvas->erasing) DrawCircleLinesV(canvas->mousePosition, canvas->eraserSize * 0.5f, BLACK);
-            else DrawCircleV(canvas->mousePosition, canvas->brushSize * 0.5f, canvas->brushColor);
+            DrawRectangleRec(canvas->tempFillRec, canvas->brushColor);
         }
         else
         {
-            if(canvas->erasing) DrawRectangleLines(
-                canvas->mousePosition.x - canvas->eraserSize * 0.5f,
-                canvas->mousePosition.y - canvas->eraserSize * 0.5f,
-                canvas->eraserSize, canvas->eraserSize, BLACK
-            );
+            if(!canvas->squareBrush)
+            {
+                if(canvas->erasing) DrawCircleLinesV(canvas->mousePosition, canvas->eraserSize * 0.5f, BLACK);
+                else DrawCircleV(canvas->mousePosition, canvas->brushSize * 0.5f, canvas->brushColor);
+            }
+            else
+            {
+                if(canvas->erasing) DrawRectangleLines(
+                    canvas->mousePosition.x - canvas->eraserSize * 0.5f,
+                    canvas->mousePosition.y - canvas->eraserSize * 0.5f,
+                    canvas->eraserSize, canvas->eraserSize, BLACK
+                );
 
-            else DrawRectangle(
-                canvas->mousePosition.x - canvas->brushSize * 0.5f,
-                canvas->mousePosition.y - canvas->brushSize * 0.5f,
-                canvas->brushSize, canvas->brushSize, canvas->brushColor
-            );
+                else DrawRectangle(
+                    canvas->mousePosition.x - canvas->brushSize * 0.5f,
+                    canvas->mousePosition.y - canvas->brushSize * 0.5f,
+                    canvas->brushSize, canvas->brushSize, canvas->brushColor
+                );
+            }
         }
 
     EndTextureMode();
@@ -214,7 +249,7 @@ void DrawCanvas(Canvas* canvas)
 
             if(canvas->erasing) size = canvas->eraserSize;
             else size = canvas->brushSize;
-
+            
             DrawLineEx(canvas->previousMousePosition, canvas->mousePosition, size, canvas->brushColor);
 
             if(!canvas->squareBrush)
@@ -229,6 +264,10 @@ void DrawCanvas(Canvas* canvas)
                     canvas->brushSize, size, canvas->brushColor
                 );
             }
+        }
+        else if(canvas->fillRecStart && !canvas->mouseInPanel)
+        {
+            if(IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) DrawRectangleRec(canvas->tempFillRec, canvas->brushColor);
         }
     
     EndTextureMode();
