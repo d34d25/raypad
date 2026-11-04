@@ -33,9 +33,11 @@ void InitCanvas(int width, int height, Canvas *canvas)
     canvas->sourceRec.width = width;
     canvas->sourceRec.height = -height;
 
+    canvas->currentOption = CIRC_BRUSH;
+
     canvas->mouseInPanel = false;
 
-    canvas->fillRecStart = false;
+    canvas->drawingShape = false;
 
     canvas->drawing = false;
 
@@ -44,8 +46,6 @@ void InitCanvas(int width, int height, Canvas *canvas)
     canvas->clearingBg = false;
 
     canvas->showGrid = false;
-
-    canvas->squareBrush = false;
 
     canvas->backgroundColor = RAYWHITE;
 
@@ -82,10 +82,32 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
 
     canvas->mouseInPanel = CheckCollisionPointRec(screenMousePos, panel->panelRec);
 
+    canvas->drawingShape = canvas->currentOption == REC_FILL || 
+    canvas->currentOption == REC_LINES || canvas->currentOption == CIRC_FILL || 
+    canvas->currentOption == CIRC_LINES;
+
+    float mouseWheel = GetMouseWheelMove();
+
+    bool modKeyDown = IsKeyDown(KEY_LEFT_CONTROL);
+
+    bool inceasingBrushSize = IsKeyDown(KEY_KP_ADD);
+    bool decreasingBrushSize = IsKeyDown(KEY_KP_SUBTRACT);
+
+    if(IsKeyPressed(KEY_E)) canvas->erasing = !canvas->erasing;
+
+    if(IsKeyPressed(KEY_G)) canvas->showGrid = !canvas->showGrid;
+
+    if(modKeyDown && IsKeyPressed(KEY_C)) canvas->clearingBg = true;
+
+    canvas->drawing = IsMouseButtonDown(MOUSE_BUTTON_LEFT) && !modKeyDown && !canvas->drawingShape;
+
+    canvas->dragging = IsMouseButtonDown(MOUSE_BUTTON_MIDDLE);
+
     if(canvas->mouseInPanel)
     {
         canvas->dragging = false;
         canvas->drawing = false;
+        canvas->drawingShape = false;
     
         return;
     }
@@ -106,40 +128,39 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
 
                 if(currentBtn->clicked)
                 {
-                    if(currentBtn->text == "CIRC_BRUSH") canvas->squareBrush = false;
+                    if(currentBtn->text == "CIRC_BRUSH") canvas->currentOption = CIRC_BRUSH;
 
-                    if(currentBtn->text == "SQR_BRUSH") canvas->squareBrush = true;
+                    if(currentBtn->text == "SQR_BRUSH") canvas->currentOption = SQR_BRUSH;
 
-                    if(currentBtn->text == "REC_FILL") canvas->fillRecStart = !canvas->fillRecStart;
+                    if(currentBtn->text == "REC_FILL") canvas->currentOption = REC_FILL;
+                    
+                    if(currentBtn->text == "REC_LINES") canvas->currentOption = REC_LINES;
+
+                    if(currentBtn->text == "CIRC_FILL") canvas->currentOption = CIRC_FILL;
+
+                    if(currentBtn->text == "CIRC_LINES") canvas->currentOption = CIRC_LINES;
+                }
+
+                if(currentBtn->text == GetOptionsText(canvas->currentOption) || currentBtn->hovering)
+                {
+                    currentBtn->currentColor = currentBtn->accentColor;
+                }
+                else
+                {
+                    currentBtn->currentColor = currentBtn->color;
                 }
 
                 if(currentBtn->hovering)
                 {
                     canvas->dragging = false;
                     canvas->drawing = false;
+                    canvas->drawingShape = false;
 
-                    return;
+                    continue;
                 }
             }
         }
     }
-
-    float mouseWheel = GetMouseWheelMove();
-
-    bool modKeyDown = IsKeyDown(KEY_LEFT_CONTROL);
-
-    bool inceasingBrushSize = IsKeyDown(KEY_KP_ADD);
-    bool decreasingBrushSize = IsKeyDown(KEY_KP_SUBTRACT);
-
-    canvas->drawing = IsMouseButtonDown(MOUSE_BUTTON_LEFT) && !modKeyDown && !canvas->fillRecStart;
-
-    if(IsKeyPressed(KEY_E)) canvas->erasing = !canvas->erasing;
-
-    if(IsKeyPressed(KEY_G)) canvas->showGrid = !canvas->showGrid;
-
-    if(modKeyDown && IsKeyPressed(KEY_C)) canvas->clearingBg = true;
-
-    canvas->dragging = IsMouseButtonDown(MOUSE_BUTTON_MIDDLE);
 
     if(canvas->erasing) canvas->brushColor = canvas->backgroundColor;
     else canvas->brushColor = canvas->currentBrushColor;
@@ -187,7 +208,10 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
 
     //fill rec
 
-    if(canvas->fillRecStart)
+    switch (canvas->currentOption)
+    {
+    case REC_FILL:
+    case REC_LINES:
     {
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
@@ -202,6 +226,10 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
         canvas->tempFillRec.width = fabsf(tempRecSize.x);
         canvas->tempFillRec.height = fabsf(tempRecSize.y);
     }
+    break;
+    
+    default: break;
+    }
 }
 
 void DrawCanvas(Canvas* canvas)
@@ -212,18 +240,25 @@ void DrawCanvas(Canvas* canvas)
 
         if(canvas->showGrid) DrawGrid2D(canvas);
 
-        if(canvas->fillRecStart && IsMouseButtonDown(MOUSE_BUTTON_LEFT) && !canvas->mouseInPanel)
+        if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && canvas->drawingShape)
         {
-            DrawRectangleRec(canvas->tempFillRec, canvas->brushColor);
+            switch (canvas->currentOption)
+            {
+            case REC_FILL: DrawRectangleRec(canvas->tempFillRec, canvas->brushColor); break;
+            
+            case REC_LINES: DrawRectangleLinesEx(canvas->tempFillRec, canvas->brushSize, canvas->brushColor); break;
+
+            default: break;
+            }
         }
         else
         {
-            if(!canvas->squareBrush)
+            if(canvas->currentOption == CIRC_BRUSH)
             {
                 if(canvas->erasing) DrawCircleLinesV(canvas->mousePosition, canvas->eraserSize * 0.5f, BLACK);
                 else DrawCircleV(canvas->mousePosition, canvas->brushSize * 0.5f, canvas->brushColor);
             }
-            else
+            else if(canvas->currentOption == SQR_BRUSH)
             {
                 if(canvas->erasing) DrawRectangleLines(
                     canvas->mousePosition.x - canvas->eraserSize * 0.5f,
@@ -252,11 +287,11 @@ void DrawCanvas(Canvas* canvas)
             
             DrawLineEx(canvas->previousMousePosition, canvas->mousePosition, size, canvas->brushColor);
 
-            if(!canvas->squareBrush)
+            if(canvas->currentOption == CIRC_BRUSH)
             {
                 DrawCircleV(canvas->mousePosition, size * 0.5f, canvas->brushColor);
             }
-            else
+            else if(canvas->currentOption == SQR_BRUSH)
             {
                 DrawRectangle(
                     canvas->mousePosition.x - size * 0.5f,
@@ -265,9 +300,19 @@ void DrawCanvas(Canvas* canvas)
                 );
             }
         }
-        else if(canvas->fillRecStart && !canvas->mouseInPanel)
+        else if(canvas->drawingShape)
         {
-            if(IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) DrawRectangleRec(canvas->tempFillRec, canvas->brushColor);
+            if(IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+            {
+                switch (canvas->currentOption)
+                {
+                case REC_FILL: DrawRectangleRec(canvas->tempFillRec, canvas->brushColor); break;
+                
+                case REC_LINES: DrawRectangleLinesEx(canvas->tempFillRec, canvas->brushSize, canvas->brushColor); break;
+
+                default: break;
+                }
+            }
         }
     
     EndTextureMode();

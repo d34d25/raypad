@@ -33,12 +33,14 @@ typedef struct Canvas
     float brushSize;
 
     float eraserSize;
+
+    Options currentOption;
     
     int canvasWidth;
 
     int canvasHeight;
 
-    bool fillRecStart;
+    bool drawingShape;
 
     bool mouseInPanel;
 
@@ -51,8 +53,6 @@ typedef struct Canvas
     bool clearingBg;
 
     bool showGrid;
-
-    bool squareBrush;
 
 } Canvas;
 

@@ -7,6 +7,10 @@ typedef struct MenuButton
 {
     Color color;
 
+    Color accentColor;
+
+    Color currentColor;
+
     Rectangle button;
 
     const char* text;

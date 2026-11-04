@@ -23,6 +23,10 @@ void InitButton(
     button->fontSize = fontSize;
 
     button->color = color;
+
+    button->accentColor = DARKBLUE;
+
+    button->currentColor = color;
 }
 
 void UpdateButton(MenuButton *button, Camera2D* camera)
@@ -38,7 +42,7 @@ void UpdateButton(MenuButton *button, Camera2D* camera)
 
 void DrawButton(MenuButton *button)
 {
-    DrawRectangleRec(button->button, button->color);
+    DrawRectangleRec(button->button, button->currentColor);
 
     DrawText(
         button->text,

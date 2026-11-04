@@ -22,7 +22,7 @@ void InitiDropDownMenu(
     InitButton(
         &dropdown->menuButton,
         x, y, width, height,
-        text, 20, DARKBLUE
+        text, 20, DARKGRAY
     );
 
     for(int i = 1; i < MAX_OPTIONS + 1; i++)
