@@ -103,64 +103,19 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
 
     canvas->dragging = IsMouseButtonDown(MOUSE_BUTTON_MIDDLE);
 
-    if(canvas->mouseInPanel)
-    {
-        canvas->dragging = false;
-        canvas->drawing = false;
-        canvas->drawingShape = false;
-    
-        return;
-    }
+    //panel and canvas interaction
 
-    for(int i = 0; i < MAX_DROP_DOWN_MENUS; i++)
-    {
-        DropDownMenu* currentMenu = &panel->dropdownMenus[i];
+    UpdatePanel(
+        panel,
+        &canvas->currentBrushColor,
+        &canvas->currentOption,
+        &canvas->dragging,
+        &canvas->drawing,
+        &canvas->drawingShape, 
+        canvas->renderTexture.texture
+    );
 
-        if(!currentMenu) continue;
-
-        if(currentMenu->deployed)
-        {
-            for(int i = 0; i < MAX_OPTIONS; i++)
-            {
-                MenuButton* currentBtn = &currentMenu->optionsBtns[i];
-
-                if(currentBtn->text == "NULL") continue;
-
-                if(currentBtn->clicked)
-                {
-                    if(currentBtn->text == "CIRC_BRUSH") canvas->currentOption = CIRC_BRUSH;
-
-                    if(currentBtn->text == "SQR_BRUSH") canvas->currentOption = SQR_BRUSH;
-
-                    if(currentBtn->text == "REC_FILL") canvas->currentOption = REC_FILL;
-                    
-                    if(currentBtn->text == "REC_LINES") canvas->currentOption = REC_LINES;
-
-                    if(currentBtn->text == "CIRC_FILL") canvas->currentOption = CIRC_FILL;
-
-                    if(currentBtn->text == "CIRC_LINES") canvas->currentOption = CIRC_LINES;
-                }
-
-                if(currentBtn->text == GetOptionsText(canvas->currentOption) || currentBtn->hovering)
-                {
-                    currentBtn->currentColor = currentBtn->accentColor;
-                }
-                else
-                {
-                    currentBtn->currentColor = currentBtn->color;
-                }
-
-                if(currentBtn->hovering)
-                {
-                    canvas->dragging = false;
-                    canvas->drawing = false;
-                    canvas->drawingShape = false;
-
-                    continue;
-                }
-            }
-        }
-    }
+    //
 
     if(canvas->erasing) canvas->brushColor = canvas->backgroundColor;
     else canvas->brushColor = canvas->currentBrushColor;
@@ -229,6 +184,15 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
     break;
     
     default: break;
+    }
+
+    if(canvas->mouseInPanel)
+    {
+        canvas->dragging = false;
+        canvas->drawing = false;
+        canvas->drawingShape = false;
+    
+        return;
     }
 }
 

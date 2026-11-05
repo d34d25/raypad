@@ -20,8 +20,6 @@ int main(void)
 
     while (!WindowShouldClose())
     {
-        UpdatePanel(panel, &canvas->currentBrushColor, canvas->renderTexture.texture);
-
         UpdateCanvas(canvas, panel);
 
         BeginDrawing();

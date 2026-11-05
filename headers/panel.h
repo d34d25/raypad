@@ -25,7 +25,15 @@ typedef struct Panel
 
 void InitPanel(Panel* panel);
 
-void UpdatePanel(Panel* panel, Color* brushColor, Texture2D texture);
+void UpdatePanel(
+    Panel* panel,
+    Color* brushColor,
+    Options* currentOption,
+    bool* dragging,
+    bool* drawing,
+    bool* drawingShape,
+    Texture2D texture
+);
 
 void DrawPanel(Panel* panel);
 

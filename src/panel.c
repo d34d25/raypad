@@ -82,7 +82,15 @@ void InitPanel(Panel *panel)
     }
 }
 
-void UpdatePanel(Panel *panel, Color* brushColor, Texture2D texture)
+void UpdatePanel(
+    Panel* panel,
+    Color* brushColor,
+    Options* currentOption,
+    bool* dragging,
+    bool* drawing,
+    bool* drawingShape,
+    Texture2D texture
+)
 {
     UpdateButton(&panel->saveBtn, NULL);
 
@@ -113,6 +121,56 @@ void UpdatePanel(Panel *panel, Color* brushColor, Texture2D texture)
     for(int i = 0; i < MAX_DROP_DOWN_MENUS; i++)
     {
         UpdateDropDownMenu(&panel->dropdownMenus[i]);
+    }
+
+    for(int i = 0; i < MAX_DROP_DOWN_MENUS; i++)
+    {
+        DropDownMenu* currentMenu = &panel->dropdownMenus[i];
+
+        if(!currentMenu) continue;
+
+        if(currentMenu->deployed)
+        {
+            for(int i = 0; i < MAX_OPTIONS; i++)
+            {
+                MenuButton* currentBtn = &currentMenu->optionsBtns[i];
+
+                if(currentBtn->text == "NULL") continue;
+
+                if(currentBtn->clicked)
+                {
+                    if(currentBtn->text == "CIRC_BRUSH") *currentOption = CIRC_BRUSH;
+
+                    if(currentBtn->text == "SQR_BRUSH") *currentOption = SQR_BRUSH;
+
+                    if(currentBtn->text == "REC_FILL") *currentOption = REC_FILL;
+                    
+                    if(currentBtn->text == "REC_LINES") *currentOption = REC_LINES;
+
+                    if(currentBtn->text == "CIRC_FILL") *currentOption = CIRC_FILL;
+
+                    if(currentBtn->text == "CIRC_LINES") *currentOption = CIRC_LINES;
+                }
+
+                if(currentBtn->text == GetOptionsText(*currentOption) || currentBtn->hovering)
+                {
+                    currentBtn->currentColor = currentBtn->accentColor;
+                }
+                else
+                {
+                    currentBtn->currentColor = currentBtn->color;
+                }
+
+                if(currentBtn->hovering)
+                {
+                    dragging = false;
+                    drawing = false;
+                    drawingShape = false;
+
+                    continue;
+                }
+            }
+        }
     }
 }
 
