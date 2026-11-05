@@ -6,6 +6,13 @@
 extern const int WINDOW_WIDTH;
 extern const int WINDOW_HEIGHT;
 
+typedef struct Elipse
+{
+    Vector2 position;
+    Vector2 size;
+} Elipse;
+
+
 typedef struct Canvas
 {
     RenderTexture2D renderTexture;
@@ -17,6 +24,8 @@ typedef struct Canvas
     Rectangle tempFillRec;
 
     Rectangle sourceRec;
+
+    Elipse tempElipse;
 
     Color backgroundColor;
 
@@ -101,6 +110,11 @@ inline void DrawFinderLine(Canvas* canvas)
     if(lineThickness <= baseLineThickness) lineThickness = baseLineThickness;
 
     DrawLineEx(canvas->mousePosition, (Vector2){canvas->canvasWidth * 0.5f, canvas->canvasHeight * 0.5f}, lineThickness, RED);
+}
+
+inline void DrawCircleLinesThickness(Vector2 center, float radius, float thickness, Color color)
+{
+    DrawRing(center, radius - thickness, radius, 0.0f, 360.0f, 36, color);
 }
 
 #endif

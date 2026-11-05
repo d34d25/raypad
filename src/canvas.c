@@ -182,6 +182,24 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
         canvas->tempFillRec.height = fabsf(tempRecSize.y);
     }
     break;
+
+    case CIRC_FILL:
+    case CIRC_LINES:
+    {
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            canvas->initialMousePosition = canvas->mousePosition;
+        }
+
+        Vector2 tempRadius = Vector2Subtract(canvas->mousePosition, canvas->initialMousePosition);
+
+        canvas->tempElipse.position = canvas->initialMousePosition;
+
+        canvas->tempElipse.size.x = Vector2Length(tempRadius);
+
+        canvas->tempElipse.size.y = canvas->tempElipse.size.x;
+    }
+    break;
     
     default: break;
     }
@@ -211,6 +229,10 @@ void DrawCanvas(Canvas* canvas)
             case REC_FILL: DrawRectangleRec(canvas->tempFillRec, canvas->brushColor); break;
             
             case REC_LINES: DrawRectangleLinesEx(canvas->tempFillRec, canvas->brushSize, canvas->brushColor); break;
+
+            case CIRC_FILL: DrawCircleV(canvas->tempElipse.position, canvas->tempElipse.size.x, canvas->brushColor); break;
+
+            case CIRC_LINES: DrawCircleLinesThickness(canvas->tempElipse.position, canvas->tempElipse.size.x, canvas->brushSize, canvas->brushColor); break;
 
             default: break;
             }
@@ -273,6 +295,10 @@ void DrawCanvas(Canvas* canvas)
                 case REC_FILL: DrawRectangleRec(canvas->tempFillRec, canvas->brushColor); break;
                 
                 case REC_LINES: DrawRectangleLinesEx(canvas->tempFillRec, canvas->brushSize, canvas->brushColor); break;
+
+                case CIRC_FILL: DrawCircleV(canvas->tempElipse.position, canvas->tempElipse.size.x, canvas->brushColor); break;
+
+                case CIRC_LINES: DrawCircleLinesThickness(canvas->tempElipse.position, canvas->tempElipse.size.x, canvas->brushSize, canvas->brushColor); break;
 
                 default: break;
                 }
