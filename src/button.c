@@ -42,12 +42,14 @@ void UpdateButton(MenuButton *button, Camera2D* camera)
 
 void DrawButton(MenuButton *button)
 {
+    float factor = 0.175f;
+
     DrawRectangleRec(button->button, button->currentColor);
 
     DrawText(
         button->text,
-        button->button.x + button->button.width * 0.15f,
-        button->button.y + button->button.height * 0.15f,
+        button->button.x + button->button.width * factor,
+        button->button.y + button->button.height * factor,
         button->fontSize,
         RAYWHITE
     );

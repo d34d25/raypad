@@ -27,7 +27,7 @@ int main(void)
         ClearBackground(canvas->backgroundColor);
 
         DrawCanvas(canvas);
-        
+
         DrawPanel(panel);
 
         EndDrawing();

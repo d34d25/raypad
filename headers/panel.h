@@ -15,6 +15,8 @@ typedef struct Panel
 
     Color colors[MAX_COLORS];
 
+    MenuButton drawLineBtn;
+
     MenuButton saveBtn;
 
     Rectangle panelRec;

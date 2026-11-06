@@ -10,6 +10,7 @@ void InitiDropDownMenu(
     float width,
     float height,
     float optionHeight,
+    float fontSize,
     Options options[MAX_OPTIONS]
 )
 {
@@ -22,7 +23,7 @@ void InitiDropDownMenu(
     InitButton(
         &dropdown->menuButton,
         x, y, width, height,
-        text, 20, DARKGRAY
+        text, fontSize, DARKGRAY
     );
 
     for(int i = 1; i < MAX_OPTIONS + 1; i++)
@@ -36,7 +37,7 @@ void InitiDropDownMenu(
             x, i * optionHeight,
             width, optionHeight,
             GetOptionsText(dropdown->options[i - 1]), //maps option to text
-            20,
+            fontSize,
             DARKGRAY
         );
     }
@@ -56,14 +57,9 @@ void UpdateDropDownMenu(DropDownMenu *dropdown)
         {
             MenuButton* optionBtn = &dropdown->optionsBtns[i];
 
-            UpdateButton(optionBtn, NULL);
-
             if(optionBtn->text == "NULL") continue;
 
-            if(optionBtn->clicked)
-            {
-                
-            }
+            UpdateButton(optionBtn, NULL);
         }
     }
     

@@ -82,9 +82,7 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
 
     canvas->mouseInPanel = CheckCollisionPointRec(screenMousePos, panel->panelRec);
 
-    canvas->drawingShape = canvas->currentOption == REC_FILL || 
-    canvas->currentOption == REC_LINES || canvas->currentOption == CIRC_FILL || 
-    canvas->currentOption == CIRC_LINES;
+    canvas->drawingShape = !(canvas->currentOption == SQR_BRUSH || canvas->currentOption == CIRC_BRUSH);
 
     float mouseWheel = GetMouseWheelMove();
 
@@ -201,6 +199,15 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
     }
     break;
     
+    case DRAW_LINE:
+    {
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            canvas->initialMousePosition = canvas->mousePosition;
+        }
+    }
+    break;
+
     default: break;
     }
 
@@ -233,6 +240,8 @@ void DrawCanvas(Canvas* canvas)
             case CIRC_FILL: DrawCircleV(canvas->tempElipse.position, canvas->tempElipse.size.x, canvas->brushColor); break;
 
             case CIRC_LINES: DrawCircleLinesThickness(canvas->tempElipse.position, canvas->tempElipse.size.x, canvas->brushSize, canvas->brushColor); break;
+
+            case DRAW_LINE: DrawLineEx(canvas->initialMousePosition, canvas->mousePosition, canvas->brushSize, canvas->brushColor); break;
 
             default: break;
             }
@@ -300,6 +309,8 @@ void DrawCanvas(Canvas* canvas)
 
                 case CIRC_LINES: DrawCircleLinesThickness(canvas->tempElipse.position, canvas->tempElipse.size.x, canvas->brushSize, canvas->brushColor); break;
 
+                case DRAW_LINE: DrawLineEx(canvas->initialMousePosition, canvas->mousePosition, canvas->brushSize, canvas->brushColor); break;
+            
                 default: break;
                 }
             }

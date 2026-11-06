@@ -16,7 +16,9 @@ typedef enum Options
     CIRC_LINES,
 
     REC_FILL,
-    REC_LINES
+    REC_LINES,
+
+    DRAW_LINE
 
 } Options;
 
@@ -32,6 +34,8 @@ inline const char* GetOptionsText(Options option)
 
     case REC_FILL: return "REC_FILL";
     case REC_LINES: return "REC_LINES";
+
+    case DRAW_LINE: return "DRAW_LINE";
     
     default: return "NULL";
     }
@@ -59,6 +63,7 @@ void InitiDropDownMenu(
     float width,
     float height,
     float optionHeight,
+    float fontSize,
     Options options[5]
 );
 

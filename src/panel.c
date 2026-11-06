@@ -14,12 +14,21 @@ void InitPanel(Panel *panel)
 
     panel->panelRec.height = GetScreenHeight() * 0.05f;
 
+    float btnWidth = 150.0f;
+
     InitButton(
         &panel->saveBtn,
         0.0f, 0.0f,
-        100.0f, panel->panelRec.height,
-        "Save", 20,
+        btnWidth, panel->panelRec.height,
+        "Save", 26,
         BLACK
+    );
+
+    InitButton(
+        &panel->drawLineBtn,
+        btnWidth + btnWidth * MAX_DROP_DOWN_MENUS, 0.0f,
+        btnWidth, panel->panelRec.height,
+        "DRAW_LINE", 19, DARKGRAY
     );
 
     panel->colors[0] = BLACK;
@@ -63,9 +72,7 @@ void InitPanel(Panel *panel)
             text = "Fill shape";
         }
 
-        float btnWidth = 150.0f;
-
-        float currentX = 100.0f;
+        float currentX = btnWidth;
 
         if(i > 0) currentX += btnWidth;
 
@@ -77,6 +84,7 @@ void InitPanel(Panel *panel)
             btnWidth,
             panel->panelRec.height,
             panel->panelRec.height,
+            19.0f,
             currentMenuOptions
         );
     }
@@ -93,6 +101,8 @@ void UpdatePanel(
 )
 {
     UpdateButton(&panel->saveBtn, NULL);
+
+    UpdateButton(&panel->drawLineBtn, NULL);
 
     Vector2 mousePos = GetMousePosition();
 
@@ -123,11 +133,43 @@ void UpdatePanel(
         UpdateDropDownMenu(&panel->dropdownMenus[i]);
     }
 
+    if(panel->drawLineBtn.clicked)
+    {
+        *currentOption = DRAW_LINE;
+    }
+
+    if(panel->saveBtn.hovering)
+    {
+        panel->saveBtn.currentColor = panel->saveBtn.accentColor;
+    }
+    else
+    {
+        panel->saveBtn.currentColor = panel->saveBtn.color;
+    }
+
+    if(panel->drawLineBtn.text == GetOptionsText(*currentOption) || panel->drawLineBtn.hovering)
+    {
+        panel->drawLineBtn.currentColor = panel->drawLineBtn.accentColor;
+    }
+    else
+    {
+        panel->drawLineBtn.currentColor = panel->drawLineBtn.color;
+    }
+
     for(int i = 0; i < MAX_DROP_DOWN_MENUS; i++)
     {
         DropDownMenu* currentMenu = &panel->dropdownMenus[i];
 
         if(!currentMenu) continue;
+
+        if(currentMenu->menuButton.hovering)
+        {
+            currentMenu->menuButton.currentColor = currentMenu->menuButton.accentColor;
+        }
+        else
+        {
+            currentMenu->menuButton.currentColor = currentMenu->menuButton.color;
+        }
 
         if(currentMenu->deployed)
         {
@@ -163,9 +205,9 @@ void UpdatePanel(
 
                 if(currentBtn->hovering)
                 {
-                    dragging = false;
-                    drawing = false;
-                    drawingShape = false;
+                    *dragging = false;
+                    *drawing = false;
+                    *drawingShape = false;
 
                     continue;
                 }
@@ -184,6 +226,8 @@ void DrawPanel(Panel *panel)
     }
 
     DrawButton(&panel->saveBtn);
+
+    DrawButton(&panel->drawLineBtn);
 
     for(int i = 0; i < MAX_DROP_DOWN_MENUS; i++)
     {
