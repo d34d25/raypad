@@ -57,7 +57,7 @@ void UpdateDropDownMenu(DropDownMenu *dropdown)
         {
             MenuButton* optionBtn = &dropdown->optionsBtns[i];
 
-            if(optionBtn->text == "NULL") continue;
+            if(optionBtn->text == "NONE") continue;
 
             UpdateButton(optionBtn, NULL);
         }
@@ -75,7 +75,7 @@ void DrawDropDownMenu(DropDownMenu *dropdown)
 
             UpdateButton(optionBtn, NULL);
 
-            if(optionBtn->text == "NULL") continue;
+            if(optionBtn->text == "NONE") continue;
 
             DrawButton(optionBtn);
         }

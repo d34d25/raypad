@@ -177,7 +177,7 @@ void UpdatePanel(
             {
                 MenuButton* currentBtn = &currentMenu->optionsBtns[i];
 
-                if(currentBtn->text == "NULL") continue;
+                if(currentBtn->text == "NONE") continue;
 
                 if(currentBtn->clicked)
                 {

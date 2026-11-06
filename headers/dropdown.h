@@ -37,7 +37,7 @@ inline const char* GetOptionsText(Options option)
 
     case DRAW_LINE: return "DRAW_LINE";
     
-    default: return "NULL";
+    default: return "NONE";
     }
 }
 

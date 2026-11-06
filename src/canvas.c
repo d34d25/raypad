@@ -155,9 +155,11 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
         else if(decreasingBrushSize) canvas->brushSize -= brushStep;
     }
 
-    canvas->brushSize = Clamp(canvas->brushSize, 1.0f, 100.0f);
+    float maxSize = 2000.0f;
 
-    canvas->eraserSize = Clamp(canvas->eraserSize, 1.0f, 100.0f);
+    canvas->brushSize = Clamp(canvas->brushSize, 1.0f, maxSize);
+
+    canvas->eraserSize = Clamp(canvas->eraserSize, 1.0f, maxSize);
 
     //fill rec
 
