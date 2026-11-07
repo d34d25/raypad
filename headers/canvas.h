@@ -128,7 +128,7 @@ inline void DrawCircleLinesThickness(Vector2 center, float radius, float thickne
     DrawRing(center, radius - thickness, radius, 0.0f, 360.0f, 36, color);
 }
 
-inline void DrawStar(Star star, float thickness, Color color)
+inline void DrawStarLines(Star star, float thickness, Color color)
 {
     for(int i = 0; i < STAR_VERTICES_COUNT; i++)
     {
@@ -139,5 +139,22 @@ inline void DrawStar(Star star, float thickness, Color color)
         DrawLineEx(star.transformedVertices[i], star.transformedVertices[nextI], thickness, color);
     }
 }
+
+inline void DrawStar(Star star, Color color)
+{
+    for(int i = 0; i < 3; i++)
+    {
+        DrawStarLines(star, i * star.size * 0.25f, color);
+    }
+}
+
+inline void DrawSakura(Star star, Color color)
+{
+    for(int i = 0; i < 3; i++)
+    {
+        DrawStarLines(star, i * star.size * 0.25f, color);
+    }
+}
+
 
 #endif

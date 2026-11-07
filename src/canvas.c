@@ -229,7 +229,9 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
     }
     break;
 
+    case STAR_FILL:
     case STAR_LINES:
+    case SAKURA:
     {
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
@@ -283,7 +285,11 @@ void DrawCanvas(Canvas* canvas)
 
             case DRAW_LINE: DrawLineEx(canvas->initialMousePosition, canvas->mousePosition, canvas->brushSize, canvas->brushColor); break;
 
-            case STAR_LINES: DrawStar(canvas->tempStar, canvas->brushSize, canvas->brushColor);
+            case STAR_LINES: DrawStarLines(canvas->tempStar, canvas->brushSize, canvas->brushColor); break;
+
+            case STAR_FILL: DrawStar(canvas->tempStar, canvas->brushColor); break;
+
+            case SAKURA: DrawSakura(canvas->tempStar, canvas->brushColor); break;
 
             default: break;
             }
@@ -353,7 +359,11 @@ void DrawCanvas(Canvas* canvas)
 
                 case DRAW_LINE: DrawLineEx(canvas->initialMousePosition, canvas->mousePosition, canvas->brushSize, canvas->brushColor); break;
             
-                case STAR_LINES: DrawStar(canvas->tempStar, canvas->brushSize, canvas->brushColor);
+                case STAR_LINES: DrawStarLines(canvas->tempStar, canvas->brushSize, canvas->brushColor); break;
+
+                case STAR_FILL: DrawStar(canvas->tempStar, canvas->brushColor); break;
+
+                case SAKURA: DrawSakura(canvas->tempStar, canvas->brushColor); break;
 
                 default: break;
                 }
