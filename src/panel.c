@@ -61,7 +61,7 @@ void InitPanel(Panel *panel)
             text = "Brush type";
         }
 
-        if(i == 1) //fill shape
+        if(i == 1) //draw shape
         {
             currentMenuOptions[0] = CIRC_FILL;
             currentMenuOptions[1] = CIRC_LINES;
@@ -71,7 +71,7 @@ void InitPanel(Panel *panel)
 
             currentMenuOptions[4] = STAR_LINES;
 
-            text = "Fill shape";
+            text = "Draw shape";
         }
 
         float currentX = btnWidth;
