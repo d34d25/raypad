@@ -69,6 +69,8 @@ void InitPanel(Panel *panel)
             currentMenuOptions[2] = REC_FILL;
             currentMenuOptions[3] = REC_LINES;
 
+            currentMenuOptions[4] = STAR_LINES;
+
             text = "Fill shape";
         }
 
@@ -192,6 +194,8 @@ void UpdatePanel(
                     if(currentBtn->text == "CIRC_FILL") *currentOption = CIRC_FILL;
 
                     if(currentBtn->text == "CIRC_LINES") *currentOption = CIRC_LINES;
+                    
+                    if(currentBtn->text == "STAR_LINES") *currentOption = STAR_LINES;
                 }
 
                 if(currentBtn->text == GetOptionsText(*currentOption) || currentBtn->hovering)

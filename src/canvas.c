@@ -61,13 +61,32 @@ void InitCanvas(int width, int height, Canvas *canvas)
 
     canvas->overlay = LoadRenderTexture(width, height);
 
-    ClearCanvas(canvas);
-
     canvas->tempFillRec.x = -100;
     canvas->tempFillRec.y = -100;
 
     canvas->tempFillRec.width = 10;
     canvas->tempFillRec.height = 10;
+
+    canvas->tempStar.position = (Vector2){60.0f,60.0f};
+
+    canvas->tempStar.size = 10.0f;
+
+    canvas->tempStar.vertices[0] = (Vector2){0.0f, -1.0f};
+    canvas->tempStar.vertices[1] = (Vector2){-0.2245f, -0.3090f};
+
+    canvas->tempStar.vertices[2] = (Vector2){-0.9511f, -0.3090};
+    canvas->tempStar.vertices[3] = (Vector2){-0.3633f, 0.1180f};
+
+    canvas->tempStar.vertices[4] = (Vector2){-0.5878f, 0.8090f};
+    canvas->tempStar.vertices[5] = (Vector2){0.0f, 0.3820f};
+
+    canvas->tempStar.vertices[6] = (Vector2){0.5878f, 0.8090f};
+    canvas->tempStar.vertices[7] = (Vector2){0.3633f, 0.1180f};
+
+    canvas->tempStar.vertices[8] = (Vector2){0.9511f, -0.3090f};
+    canvas->tempStar.vertices[9] = (Vector2){0.2245f, -0.3090f};
+
+    ClearCanvas(canvas);
 }
 
 void UpdateCanvas(Canvas* canvas, Panel* panel)
@@ -210,6 +229,25 @@ void UpdateCanvas(Canvas* canvas, Panel* panel)
     }
     break;
 
+    case STAR_LINES:
+    {
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            canvas->initialMousePosition = canvas->mousePosition;
+        }
+
+        canvas->tempStar.position = canvas->initialMousePosition;
+
+        float size = Vector2Length(Vector2Subtract(canvas->mousePosition, canvas->initialMousePosition));
+
+        canvas->tempStar.size = size;
+
+        for(int i = 0; i < STAR_VERTICES_COUNT; i++)
+        {
+            canvas->tempStar.transformedVertices[i] = Vector2Add(Vector2Scale(canvas->tempStar.vertices[i], canvas->tempStar.size), canvas->tempStar.position);
+        }
+    }
+
     default: break;
     }
 
@@ -244,6 +282,8 @@ void DrawCanvas(Canvas* canvas)
             case CIRC_LINES: DrawCircleLinesThickness(canvas->tempElipse.position, canvas->tempElipse.size.x, canvas->brushSize, canvas->brushColor); break;
 
             case DRAW_LINE: DrawLineEx(canvas->initialMousePosition, canvas->mousePosition, canvas->brushSize, canvas->brushColor); break;
+
+            case STAR_LINES: DrawStar(canvas->tempStar, canvas->brushSize, canvas->brushColor);
 
             default: break;
             }
@@ -313,6 +353,8 @@ void DrawCanvas(Canvas* canvas)
 
                 case DRAW_LINE: DrawLineEx(canvas->initialMousePosition, canvas->mousePosition, canvas->brushSize, canvas->brushColor); break;
             
+                case STAR_LINES: DrawStar(canvas->tempStar, canvas->brushSize, canvas->brushColor);
+
                 default: break;
                 }
             }

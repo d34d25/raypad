@@ -3,7 +3,7 @@
 
 #include "button.h"
 
-#define MAX_OPTIONS 5
+#define MAX_OPTIONS 6
 
 typedef enum Options
 {
@@ -17,6 +17,8 @@ typedef enum Options
 
     REC_FILL,
     REC_LINES,
+
+    STAR_LINES,
 
     DRAW_LINE
 
@@ -34,6 +36,8 @@ inline const char* GetOptionsText(Options option)
 
     case REC_FILL: return "REC_FILL";
     case REC_LINES: return "REC_LINES";
+
+    case STAR_LINES: return "STAR_LINES";
 
     case DRAW_LINE: return "DRAW_LINE";
     

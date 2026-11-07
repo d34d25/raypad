@@ -6,12 +6,21 @@
 extern const int WINDOW_WIDTH;
 extern const int WINDOW_HEIGHT;
 
+#define STAR_VERTICES_COUNT 10
+
 typedef struct Elipse
 {
     Vector2 position;
     Vector2 size;
 } Elipse;
 
+typedef struct Star
+{
+    Vector2 transformedVertices[STAR_VERTICES_COUNT];
+    Vector2 vertices[STAR_VERTICES_COUNT];
+    Vector2 position;
+    float size;
+} Star;
 
 typedef struct Canvas
 {
@@ -20,6 +29,8 @@ typedef struct Canvas
     RenderTexture2D overlay;
 
     Camera2D camera;
+
+    Star tempStar;
 
     Rectangle tempFillRec;
 
@@ -115,6 +126,18 @@ inline void DrawFinderLine(Canvas* canvas)
 inline void DrawCircleLinesThickness(Vector2 center, float radius, float thickness, Color color)
 {
     DrawRing(center, radius - thickness, radius, 0.0f, 360.0f, 36, color);
+}
+
+inline void DrawStar(Star star, float thickness, Color color)
+{
+    for(int i = 0; i < STAR_VERTICES_COUNT; i++)
+    {
+        int nextI = i + 1;
+
+        if(nextI >= STAR_VERTICES_COUNT) nextI = 0;
+
+        DrawLineEx(star.transformedVertices[i], star.transformedVertices[nextI], thickness, color);
+    }
 }
 
 #endif
